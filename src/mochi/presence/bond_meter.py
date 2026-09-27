@@ -35,6 +35,8 @@ BOND_TYPING_TICK_SECONDS = 1
 BOND_PERSIST_INTERVAL_XP = 15
 BOND_FEED_HOLD_SECONDS = 2.4
 BOND_FEED_VISUAL_ORB_LIMIT = MAX_ACTIVE_ORBS * 2
+BOND_DEV_VISUAL_ORB_LIMIT = MAX_ACTIVE_ORBS * 2
+BOND_DEV_SPAM_AWARDS = 50
 BOND_DEV_SWARM_XP = 60
 LEVEL_UP_DEFAULT_ANIMATION = "level_up_default"
 EMOTE_UNLOCK_DEMO_DELAY_MS = 150
@@ -80,6 +82,7 @@ class BondMeterMixin:
         self._bond_progress_overlay: BondProgressOverlay | None = None
         self._bond_typing_source_id: int | None = None
         self._bond_unsaved_xp = 0
+        self._bond_state_dirty = False
         self._bond_feed_last_completed_at: float | None = None
         self._bond_feed_count_in_window = 0
         self._dev_unlock_all_emotes = False
@@ -191,10 +194,22 @@ class BondMeterMixin:
             self._test_bond_award_one,
         )
         award_button.set_tooltip_text(
-            "Awards one real bond XP and persists the updated bond state"
+            f"Awards one real bond XP; saves every {BOND_PERSIST_INTERVAL_XP} XP, "
+            "on level-up, and on exit"
         )
         card.append(award_button)
         animated_rows.append(award_button)
+
+        spam_button, _ = self._make_menu_button(
+            "Stress +1 XP ×50",
+            "media-seek-forward-symbolic",
+            self._test_bond_spam_awards,
+        )
+        spam_button.set_tooltip_text(
+            "Runs 50 rapid real +1 XP awards through the Dev Menu path"
+        )
+        card.append(spam_button)
+        animated_rows.append(spam_button)
 
         swarm_button, _ = self._make_menu_button(
             "Preview 60 XP swarm",
@@ -229,6 +244,19 @@ class BondMeterMixin:
         card.append(real_level_button)
         animated_rows.append(real_level_button)
 
+        preview_dialogue = getattr(self, "_preview_bond_dialogue", None)
+        if callable(preview_dialogue):
+            dialogue_button, _ = self._make_menu_button(
+                "Preview bond dialogue",
+                "chat-bubble-text-symbolic",
+                preview_dialogue,
+            )
+            dialogue_button.set_tooltip_text(
+                "Visual-only preview of dialogue for the current bond level"
+            )
+            card.append(dialogue_button)
+            animated_rows.append(dialogue_button)
+
         unlock_button, self._dev_unlock_all_label = self._make_menu_button(
             "Unlock all emotes",
             "changes-allow-symbolic",
@@ -255,8 +283,17 @@ class BondMeterMixin:
         return popover
 
     def _test_bond_award_one(self, _button=None) -> None:
-        """Award one real XP for progress/persistence QA."""
-        self._award_bond(1, persist=True)
+        """Award real XP without unbounded visual or per-click disk work."""
+        self._award_bond(
+            1,
+            persist=False,
+            visual_orb_limit=BOND_DEV_VISUAL_ORB_LIMIT,
+        )
+
+    def _test_bond_spam_awards(self, _button=None) -> None:
+        """Stress the real Dev Menu XP path with one synchronous burst."""
+        for _ in range(BOND_DEV_SPAM_AWARDS):
+            self._test_bond_award_one()
 
     def _test_bond_swarm(self, _button=None) -> None:
         """Preview a feed-sized particle swarm without mutating bond progress."""
@@ -283,8 +320,9 @@ class BondMeterMixin:
             level=self._bond_state.level,
             xp=max(0, self._bond_state.xp_required - 1),
         )
+        self._bond_unsaved_xp = 0
+        self._bond_state_dirty = True
         self._set_bond_state_for_ui(near_level)
-        self._persist_bond_state()
         self._award_bond(1, persist=True)
 
     def _test_unlock_all_emotes(self, _button=None) -> None:
@@ -326,6 +364,8 @@ class BondMeterMixin:
             self.state.transition_presentation(PresentationState.NORMAL)
         if self._dev_unlock_all_label is not None:
             self._dev_unlock_all_label.set_text("Unlock all emotes")
+        self._bond_unsaved_xp = 0
+        self._bond_state_dirty = True
         self._set_bond_state_for_ui(BondState())
         self._persist_bond_state()
         if self._bond_progress_overlay is not None:
@@ -338,12 +378,22 @@ class BondMeterMixin:
             return
         self._set_bond_state_for_ui(config.load_bond_state())
 
-    def _persist_bond_state(self) -> None:
+    def _persist_bond_state(self) -> bool:
+        """Persist the current Bond snapshot without hiding write failures."""
+        self._bond_state_dirty = True
         config = getattr(self, "_config", None)
         if config is None:
-            return
-        config.save_bond_state(self._bond_state)
+            return False
+        try:
+            config.save_bond_state(self._bond_state)
+        except OSError:
+            self._logger.exception(
+                "Could not persist Bond state; retaining dirty progression for retry"
+            )
+            return False
         self._bond_unsaved_xp = 0
+        self._bond_state_dirty = False
+        return True
 
     def _award_bond(
         self,
@@ -358,6 +408,7 @@ class BondMeterMixin:
             return advance
 
         previous_level = self._bond_state.level
+        self._bond_state_dirty = True
         self._set_bond_state_for_ui(advance.state)
         self._bond_unsaved_xp += advance.xp_awarded
         if visual_orb_limit is None:
@@ -383,7 +434,11 @@ class BondMeterMixin:
         if callable(queue_draw):
             queue_draw()
 
-        if persist or self._bond_unsaved_xp >= BOND_PERSIST_INTERVAL_XP:
+        if (
+            persist
+            or advance.levelled_up
+            or self._bond_unsaved_xp >= BOND_PERSIST_INTERVAL_XP
+        ):
             self._persist_bond_state()
 
         self._logger.debug(
@@ -698,7 +753,7 @@ class BondMeterMixin:
             except Exception:
                 pass
 
-        if self._bond_unsaved_xp > 0:
+        if self._bond_state_dirty or self._bond_unsaved_xp > 0:
             self._persist_bond_state()
 
     def _focus_bond_hint_active(self) -> bool:
@@ -907,18 +962,20 @@ class BondMeterMixin:
                 GLib.source_remove(source_id)
             except Exception:
                 pass
-        if self._bond_unsaved_xp > 0:
-            self._persist_bond_state()
-        overlay = self._bond_progress_overlay
-        self._bond_progress_overlay = None
-        if overlay is not None:
-            # Clear our reference before destroy: destroy may synchronously
-            # report a finished card, and that callback must not enqueue the
-            # next reward against a surface that is being torn down.
-            overlay.destroy()
-        if self.state.presentation in (
-            PresentationState.LEVEL_UP,
-            PresentationState.EMOTE_UNLOCK,
-        ):
-            self.state.transition_presentation(PresentationState.NORMAL)
-        super().shutdown_presence()
+        try:
+            if self._bond_state_dirty or self._bond_unsaved_xp > 0:
+                self._persist_bond_state()
+        finally:
+            overlay = self._bond_progress_overlay
+            self._bond_progress_overlay = None
+            if overlay is not None:
+                # Clear our reference before destroy: destroy may synchronously
+                # report a finished card, and that callback must not enqueue the
+                # next reward against a surface that is being torn down.
+                overlay.destroy()
+            if self.state.presentation in (
+                PresentationState.LEVEL_UP,
+                PresentationState.EMOTE_UNLOCK,
+            ):
+                self.state.transition_presentation(PresentationState.NORMAL)
+            super().shutdown_presence()

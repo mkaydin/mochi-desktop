@@ -3,10 +3,18 @@
 # mochi 🌱
 
 **v0.3 · Growing Together**
-> thank you so much for 60 stars <3
+
 ### A tiny Linux desktop buddy that grows with you.
 
-<img src="docs/media/v0.3/mochi-terminal.gif" width="800" alt="Mochi living on a Linux desktop beside a terminal">
+
+
+Seeing Mochi pop up in the Linux community has been surreal. 💚
+
+[![Watch Mochi on YouTube](https://img.youtube.com/vi/fCe5UqQBj9I/maxresdefault.jpg)](https://www.youtube.com/watch?v=fCe5UqQBj9I)
+
+> A community-made look at Mochi.  
+> **Watch on YouTube →**
+
 
 Mochi lives quietly on your Linux desktop — wandering, reacting, working beside
 you, taking naps, sharing snacks, learning new emotes, and building a bond
@@ -17,6 +25,8 @@ through the time you naturally spend together.
 [Website](https://miflow13.github.io/mochi-desktop/) ·
 [Install](#install) ·
 [Documentation](docs/README.md) ·
+[Artist Kit](artist-kit/README.md) ·
+[Contributing](CONTRIBUTING.md) ·
 [Changelog](CHANGELOG.md) ·
 [Report a bug](#reporting-bugs)
 
@@ -33,15 +43,84 @@ through the time you naturally spend together.
 
 </div>
 
-> **Early public alpha.** Fedora + GNOME + Wayland is the primary tested
-> environment. On GNOME Wayland, Mochi uses XWayland for the buddy window where
-> native positioning restrictions require it.
+> **Early public alpha.** Fedora + GNOME + Wayland remains Mochi's primary
+> tested environment. On GNOME Wayland, Mochi uses XWayland for the buddy window
+> where native positioning restrictions require it.
+>
+> **Portability update:** installation should now behave much better across
+> different Linux setups. GNOME-only integration is optional, non-GNOME desktops
+> can skip the awareness helper cleanly, missing GNOME extension tooling no
+> longer blocks installation, and Mochi's private Python environment can
+> bootstrap the build backend it needs instead of relying on Fedora-specific
+> Python build packages. **CachyOS + Umbriel + Wayland** has also been
+> community-verified.
+
+## What's new lately
+
+-  **Built-in Mochi updater** — Mochi can now check for new builds, show a polished
+  GTK update window, install an exact newer `main` commit through a staged restart,
+  and keep the previous runtime recoverable if something goes wrong. Update checks
+  are quiet, opt-in for installation, and development builds will not be downgraded
+  to an older or diverged `main`.
+-  **Broader Linux portability** — safer installs across GNOME and non-GNOME
+  desktops, with behavioral installer regression coverage for the new paths.
+-  **Mochi Artist Kit** — the master reference, animation guide, workspace
+  template, and contribution path are now available for community-made emotes.
+-  **Deskling SDK work is underway** — Mochi's reusable animation, state,
+  interaction, and desktop-companion pieces are being extracted into a separate SDK.
+-  **More personality** — new catalogue and ambient behaviors continue to land,
+  including the rare **This Is Fine** emote.
+-  **Desktop behavior has been hardened** — recent fixes improve workspace
+  stickiness, focus handling, and installer rollback safety during updates.
+
+---
+
+
+<div align="center">
+
+## 🧰 Build your own Deskling
+<img width="256" height="256" alt="let_mochi_cook" src="https://github.com/user-attachments/assets/f8565ca9-7ea8-4613-9591-a0c0f0e368d3" />
+
+**A reusable Deskling SDK is in development.**
+
+Mochi is the first Deskling, but the goal is not for Mochi to be the only one.
+
+The planned **Deskling SDK** is being designed to let developers bring their own
+character, artwork, animations, and behavior into a reusable Linux
+desktop-companion runtime — without having to fork Mochi and untangle
+Mochi-specific code first.
+
+[![Deskling SDK — in development](https://img.shields.io/badge/Deskling%20SDK-in%20development-7FE719?style=for-the-badge)](https://github.com/miflow13/Deskling-SDK)
+
+</div>
+
+The SDK work is focused on extracting the reusable pieces behind Mochi:
+animation playback, coherent state/lifecycle handling, desktop interactions,
+window placement, configuration, and hooks for contextual behavior.
+
+This is still early work. APIs, packaging, and the extension surface may change
+before the first public SDK release.
+
+**[Follow Deskling SDK development →](https://github.com/miflow13/Deskling-SDK)**
+
+---
+
+## 🎨 Make something for Mochi
+
+**Mochi's master reference, shipped animation library, and animation design guide are open for artists to use.**
+
+You do not need to be a programmer to contribute an emote or animation. The **Mochi Artist Kit** documents the character rules, 256 × 256 runtime canvas, bottom-center anchoring, nearest-neighbor export rules, animation/state conventions, submission format, and the exact production assets used by Mochi.
+
+**[Open the Mochi Artist Kit →](artist-kit/README.md)**
+
+Want to make Mochi wave differently, react to something new, perform an absurd Linux joke, or invent an entirely new emote? Start with the canonical master, draw the frames, and share it with the project. 💚
 
 ---
 
 ## v0.3 — Growing Together 🌱
 
 v0.3 is centered on one idea:
+
 
 > **Make spending time with Mochi feel meaningful without making care feel like work.**
 
@@ -85,7 +164,7 @@ authored level-up animation, sound, visual feedback, and unlock presentation.
   <img src="docs/media/v0.3/emote-catalogue.gif" width="800" alt="Mochi Emote Catalogue showing bond-gated emotes">
 </p>
 
-The new **Emote Catalogue** gives Mochi's expressions a home.
+The **Emote Catalogue** gives Mochi's expressions a home.
 
 It includes:
 
@@ -95,7 +174,7 @@ It includes:
 - animated hover previews,
 - and newly learned behaviors that can join Mochi's ambient animation pool.
 
-Current catalogue entries include **Heart, Bounce, Squish, Wave, Side Eye,
+Current catalogue entries include **Heart, Bounce, Squish, Wave, Coffee, Side Eye,
 Look Around, Table Flip, VS Code, Dance, and Mochi.exe**.
 
 With the GNOME helper enabled, press:
@@ -134,12 +213,12 @@ early is not punished, and already-earned whole-minute XP is kept.
 
 v0.3 builds on the existing desktop-companion foundation:
 
-- idle breathing, blinking, looking around, and autonomous walking,
-- unlocked catalogue emotes joining Mochi's ambient behavior,
-- persistent **Stay put** control,
+- a calm static idle with natural blinking, looking around, and occasional autonomous walking,
+- a small startup hello plus unlocked catalogue emotes joining Mochi's ambient behavior,
+- persistent **Stay put** and optional edge-roaming controls,
 - click chirps, bounce, squish, heart, and triple-click dialogue,
 - pickup, velocity-aware dragging, and drop behavior,
-- sleep / wake behavior,
+- manual sleep / wake plus occasional autonomous naps,
 - typing companionship,
 - terminal and coding coworking reactions,
 - music and media reactions,
@@ -151,7 +230,7 @@ v0.3 builds on the existing desktop-companion foundation:
 The goal is for these behaviors to cooperate through one character and state
 system rather than feel like unrelated GIF triggers.
 
-## Context, not content
+## Ambient Behaviors
 
 **AmbiSense** is Mochi's local, rule-based awareness system.
 
@@ -181,10 +260,11 @@ model.
 ### Give Mochi a corner of your desktop
 
 The installer has a supported dependency path for Fedora. It creates a private
-Python environment, installs the GNOME helper, adds Mochi to the application
-grid, and installs `mochi` and `mochi-uninstall` under `~/.local/bin`.
+Python environment, adds Mochi to the application grid, and installs `mochi`,
+`mochi-update`, and `mochi-uninstall` under `~/.local/bin`. On GNOME, it also installs the
+optional awareness helper when GNOME extension tooling is available.
 
-### Current alpha checkout
+### Install from source
 
 ```bash
 git clone https://github.com/miflow13/mochi-desktop.git
@@ -192,24 +272,51 @@ cd mochi-desktop
 ./install.sh
 ```
 
-The v0.3 development line has been promoted to `main`. The installer installs
-the source currently checked out in Git.
+`main` currently tracks the v0.3 alpha line. The installer installs the source
+from the commit or branch you currently have checked out.
 
-After the first GNOME Wayland installation, log out and back in once so GNOME
-can load Mochi's optional awareness helper. Mochi still runs without the helper,
-but some contextual reactions and global shortcuts will be unavailable.
+If the installer says it installed Mochi's optional GNOME awareness helper,
+log out and back in once so GNOME can load it. If the helper was skipped,
+Mochi still runs without it, but some contextual reactions and global
+shortcuts will be unavailable.
 
 ### Update an installed copy
 
-Quit Mochi first, then:
+Installed Mochi can now check for updates without touching the source checkout
+you originally cloned.
+
+Mochi performs a quiet update check at most once per day. When a newer alpha
+build is available, Mochi can show a single small speech bubble and the
+right-click menu changes to **Update available**. Choose it to review a short
+**What's new** summary, then select **Update & Restart** when you are ready.
+
+You can also check manually from Mochi's right-click menu or run:
 
 ```bash
-git pull --ff-only
+mochi-update
+```
+
+The current alpha update channel follows the latest commit on `main`. One
+update attempt is pinned to the exact commit Mochi found, downloads a clean
+archive of that commit, prepares the replacement runtime beside the current
+one, and only swaps after the candidate passes validation. The previous runtime
+is kept until the updated Mochi starts successfully, so a failed update can
+restore the working installation.
+
+Bond progress, unlocks, preferences, and other user state are stored separately
+from the replaceable runtime and are not reset by an ordinary update.
+
+For development/source checkouts, the manual workflow is still available:
+
+```bash
+git switch main
+git pull --ff-only origin main
 ./install.sh
 ```
 
-Relaunch afterward. `git pull` alone does not update the app-grid installation,
-and an already-running process keeps its loaded code.
+That manual path updates the checked-out source and installed runtime. The
+normal in-app/`mochi-update` path does **not** switch branches, stash files, or
+modify a developer checkout.
 
 ### Fedora with Niri
 
@@ -250,21 +357,25 @@ Global shortcuts require the GNOME helper.
 ## Compatibility
 
 - **Primary target:** Fedora + GNOME + Wayland.
+- **Community verified:** CachyOS + Umbriel + Wayland — installation and runtime
+  confirmed working by the reporter of [#125](https://github.com/miflow13/mochi-desktop/issues/125)
+  after the portability fixes in [#126](https://github.com/miflow13/mochi-desktop/pull/126).
 - Mochi uses an XWayland GTK window on GNOME Wayland for reliable desktop
   positioning.
 - Other distributions may work, but automatic dependency installation currently
-  supports Fedora.
-- GNOME provides the fullest AmbiSense integration.
+  supports Fedora. Mochi's installer no longer requires Fedora's Python build
+  packages to provide the local setuptools build backend.
+- GNOME provides the fullest AmbiSense integration. On non-GNOME desktops, the
+  optional GNOME helper is skipped instead of blocking installation.
 - Niri, fractional scaling, multi-monitor setups, and non-GNOME environments
   receive less regression coverage.
 
 ### Known issues
 
-- **Workspace / Overview freeze — [#45](https://github.com/miflow13/mochi-desktop/issues/45):**
-  entering GNOME Overview or switching workspaces during an emote can leave
-  Mochi visually frozen on XWayland.
-- **Drag reversal responsiveness — [#68](https://github.com/miflow13/mochi-desktop/issues/68):**
-  drag-left/right poses can lag briefly after rapidly reversing direction.
+- **XWayland lifecycle freeze — [#45](https://github.com/miflow13/mochi-desktop/issues/45):**
+  a separate freeze can still occur when entering GNOME Overview or switching
+  workspaces during some animations. The ordinary sticky-workspace/focus issue
+  reported in #118 has been fixed.
 - Alpha behavior and compatibility can still change.
 
 Passing automated tests does not establish reliability across every compositor,
@@ -297,23 +408,24 @@ More detailed recovery steps are in
 ## Development
 
 Complete the Fedora runtime/helper installation first, then use a separate
-editable environment:
+editable environment for development:
 
 ```bash
 git clone https://github.com/miflow13/mochi-desktop.git
 cd mochi-desktop
 python3 -m venv --system-site-packages .venv
 source .venv/bin/activate
-python -m pip install -e .
-python -m pip install pytest
-python -m pytest
+python3 -m pip install -e .
+python3 -m pip install pytest
+python3 -m pytest -q
 mochi --debug
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md),
+New contributors should start with the
+[Codebase Manual](docs/CODEBASE_MANUAL.md), then review
+[CONTRIBUTING.md](CONTRIBUTING.md),
 [REGRESSION_WATCHLIST.md](REGRESSION_WATCHLIST.md), and the
-[documentation index](docs/README.md) for contribution and verification
-guidance.
+[documentation index](docs/README.md) before changing runtime behavior.
 
 ## Reporting bugs
 

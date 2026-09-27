@@ -8,15 +8,31 @@ Mochi is still in early public alpha, so behavior, configuration, and compatibil
 
 ### Added
 
+- Added a polished **Mochi Update Service** for installed alpha builds. Mochi can
+  quietly detect newer `main` commits, announce an available update once, show
+  a compact GTK **What's new** window using real Mochi pixel art, and update
+  through the new `mochi-update` command or **Update & Restart** UI.
+- Updates are pinned to the exact discovered commit, staged beside the current
+  runtime, validated before swap, and rolled back if the replacement does not
+  start successfully. User bond/progression/preferences remain separate from
+  the replaceable runtime.
+- Added **This Is Fine** as a rare Bond Level 3 catalogue emote with an animated hover preview and unlock reveal.
 - Added **Wave**, **VS Code**, and **Mochi.exe** to the Bond-aware Emote Catalogue, replacing the three placeholder mystery cards with authored animated previews and new bond unlocks.
 - Added **Coffee** as a completed Bond-aware catalogue emote with an animated hover preview.
 - Added **Focus with Mochi** sessions with configurable focus/break rounds,
   optional rain ambience, bond XP, and dedicated menu/setup-thinking and
   writing animations.
+- Added bond-phase relationship dialogue so triple-click responses grow from
+  curious introductions into familiar, comfortable, and long-term companion lines.
 - Added a dedicated breathing idle animation for Mochi's persistent sad mood.
+
+### Fixed
+
+- Source installs now generate the `mochi` launcher from the final virtual-environment path instead of a deleted temporary directory.
 
 ### Changed
 
+- Enabling **Edge roam** now closes the context menu and immediately starts Mochi toward the nearest screen edge when he is free to walk.
 - Slowed Mochi's default breathing loop from **3.9s to 4.95s** so his resting motion is gentler and less visually distracting in peripheral vision.
 - Every unlocked Emote Catalogue animation now automatically participates in Mochi's autonomous idle emote pool. The overall emote chance stays fixed as the catalogue grows, so new emotes add variety without making Mochi increasingly noisy.
 - Nameplate is now ephemeral: it appears while Mochi is hovered, remains briefly after speech, then fades away to reduce persistent desktop clutter. Temporary care/interaction feedback may still surface it when needed.
